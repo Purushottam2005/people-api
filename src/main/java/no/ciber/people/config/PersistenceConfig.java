@@ -5,8 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -23,23 +22,34 @@ import java.sql.SQLException;
 @Configuration
 @EnableJpaRepositories
 public class PersistenceConfig {
+
+    private String dbUrl = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
+    private String dbUsername = "sa";
+    private String dbPassword = "";
+    private String dbDriverClassName = "org.h2.Driver";
+
     @Bean
     @Autowired
-    public EntityManagerFactory bean(DataSource dataSource) {
-        LocalContainerEntityManagerFactoryBean bean = new LocalContainerEntityManagerFactoryBean();
+    public EntityManagerFactory entityManagerFactory(DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean emfBean = new LocalContainerEntityManagerFactoryBean();
         HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
-        bean.setJpaVendorAdapter(jpaVendorAdapter);
-        bean.setPackagesToScan("no.ciber.people.model");
-        bean.getJpaPropertyMap().put(AvailableSettings.HBM2DDL_AUTO, "create-drop");
-        bean.setDataSource(dataSource);
-        bean.afterPropertiesSet();
-        return bean.getObject();
+        emfBean.setJpaVendorAdapter(jpaVendorAdapter);
+        emfBean.setPackagesToScan("no.ciber.people.model");
+        emfBean.getJpaPropertyMap().put(AvailableSettings.HBM2DDL_AUTO, "create");
+        emfBean.setDataSource(dataSource);
+        emfBean.afterPropertiesSet();
+
+        return emfBean.getObject();
     }
 
     @Bean
     public DataSource dataSource() throws SQLException {
-        EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-        return builder.setType(EmbeddedDatabaseType.H2).build();
+        DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
+        driverManagerDataSource.setUrl(dbUrl);
+        driverManagerDataSource.setUsername(dbUsername);
+        driverManagerDataSource.setPassword(dbPassword);
+        driverManagerDataSource.setDriverClassName(dbDriverClassName);
+        return driverManagerDataSource;
     }
 
     @Bean
