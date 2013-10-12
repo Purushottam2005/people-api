@@ -4,8 +4,10 @@ import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
@@ -20,7 +22,7 @@ import java.sql.SQLException;
  * Time: 23:31
  */
 @Configuration
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = {"no.ciber.people.repository"})
 public class PersistenceConfig {
 
     private String dbUrl = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
@@ -56,5 +58,10 @@ public class PersistenceConfig {
     @Autowired
     public JpaTransactionManager transactionManager(EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
+    }
+
+    @Bean
+    public PersistenceExceptionTranslator persistenceExceptionTranslator() {
+        return new HibernateExceptionTranslator();
     }
 }
