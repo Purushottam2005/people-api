@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>api</module>
+        <module>generator</module>
     </modules>
     <packaging>pom</packaging>
 

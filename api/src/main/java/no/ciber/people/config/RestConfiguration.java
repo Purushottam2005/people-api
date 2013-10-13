@@ -11,6 +11,7 @@ public class RestConfiguration extends RepositoryRestMvcConfiguration {
 
     @Override
     protected void configureRepositoryRestConfiguration(RepositoryRestConfiguration config) {
+
     }
 
 }
