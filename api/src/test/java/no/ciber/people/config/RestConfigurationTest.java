@@ -36,7 +36,7 @@ public class RestConfigurationTest {
 
     @Test
     public void testRestOutput() throws Exception {
-        mockMvc.perform(get("/person").accept(APPLICATION_JSON))
+        mockMvc.perform(get("/people").accept(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(APPLICATION_JSON))
                 .andExpect(jsonPath("$.content[*].firstName").exists());
