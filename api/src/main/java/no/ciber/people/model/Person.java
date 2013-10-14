@@ -1,5 +1,7 @@
 package no.ciber.people.model;
 
+import org.springframework.data.jpa.domain.AbstractPersistable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -11,10 +13,7 @@ import java.math.BigInteger;
  * Time: 00:29
  */
 @Entity
-public class Person {
-    @Id
-    @GeneratedValue
-    private BigInteger id;
+public class Person extends AbstractPersistable<BigInteger> {
     private String firstName;
     private String lastName;
 
@@ -24,14 +23,6 @@ public class Person {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public BigInteger getId() {
-        return id;
-    }
-
-    public void setId(BigInteger id) {
-        this.id = id;
     }
 
     public String getLastName() {
