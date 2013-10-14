@@ -15,6 +15,7 @@
 
     <properties>
         <spring.version>3.2.4.RELEASE</spring.version>
+        <jetty.version>9.1.0.RC0</jetty.version>
     </properties>
 
     <build>
@@ -36,7 +37,11 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-maven-plugin</artifactId>
+                <version>${jetty.version}</version>
+            </plugin>
         </plugins>
     </build>
 
