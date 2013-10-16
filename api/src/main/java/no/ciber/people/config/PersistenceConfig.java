@@ -38,6 +38,7 @@ public class PersistenceConfig {
         emfBean.setJpaVendorAdapter(jpaVendorAdapter);
         emfBean.setPackagesToScan("no.ciber.people.model");
         emfBean.getJpaPropertyMap().put(AvailableSettings.HBM2DDL_AUTO, "create");
+        emfBean.getJpaPropertyMap().put(AvailableSettings.FORMAT_SQL, true);
         emfBean.setDataSource(dataSource);
         emfBean.afterPropertiesSet();
 
