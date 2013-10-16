@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:loadui-project label="people-api" id="068fa320-6c3b-4af2-a53d-ad32a2e1fc3e" xmlns:con="http://eviware.com/loadui/config"><con:properties><con:property propagates="true" key="ModelItem.description" type="java.lang.String"/><con:property propagates="true" key="CanvasItem.abortOnFinish" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="ModelItem.saveReport" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="ModelItem.reportFolder" type="java.lang.String"/><con:property propagates="true" key="ModelItem.reportFormat" type="java.lang.String"/></con:properties><con:attributes/><con:addons/><con:component type="com.eviware.loadui.groovy.GroovyComponent" label="Fixed Rate 1" id="3ec8160c-8f35-489e-bcdc-7e408604dfc4" category="generators"><con:properties><con:property propagates="true" key="ModelItem.description" type="java.lang.String"/><con:property propagates="true" key="_script" type="java.lang.String">// 
+// Copyright 2013 SmartBear Software
+// 
+// Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+// versions of the EUPL (the "Licence");
+// You may not use this work except in compliance with the Licence.
+// You may obtain a copy of the Licence at:
+// 
+// http://ec.europa.eu/idabc/eupl
+// 
+// Unless required by applicable law or agreed to in writing, software distributed under the Licence is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the Licence for the specific language governing permissions and limitations
+// under the Licence.
+// 
+
+/**
+ * Sends an empty message periodically, at a set rate
+ * 
+ * @id com.eviware.FixedRate
+ * @help http://www.loadui.org/Generators/fixed-rate-component.html
+ * @name Fixed Rate
+ * @category generators
+ * @nonBlocking true
+ */
+
+import java.util.concurrent.TimeUnit
+
+//Properties
+createProperty( 'rate', Long, 10 ) { schedule() }
+createProperty( 'unit', String, 'Sec' ) { schedule() }
+
+onReplace( stateProperty ) { value ->
+	if( value ) schedule()
+	else future?.cancel( true )
+}
+
+createProperty( 'burstSize', Long, 1 )
+
+triggerBurst = { 
+	burstSize.value.times {
+		trigger() 
+	} 
+}
+
+future = null
+schedule = {
+	if( stateProperty.value ) {
+		long microsecondsPerUnit = unit.value == 'Sec' ? 1000000 : unit.value == 'Min' ? 60000000 : 3600000000
+		long delay = Math.max( 1, (long)(microsecondsPerUnit / rate.value) )
+		future?.cancel( true )
+		future = scheduleAtFixedRate( triggerBurst, delay, delay, TimeUnit.MICROSECONDS )
+	}
+}
+
+onAction( "START" ) { schedule() }
+onAction( "STOP" ) { future?.cancel( true ) }
+
+//Layout
+layout { 
+	property( property:rate, label:'Rate', min:1 ) 
+	separator( vertical:true )
+	property( property:unit, label:'Unit', options:['Sec','Min','Hour'] )
+	separator( vertical:true )
+	box( widget:'display' ) {
+		node( label:'Rate', content: { "$rate.value / $unit.value" }, constraints:'wmin 75' )
+	}
+}
+
+//Compact Layout
+compactLayout {
+	box( widget:'display' ) {
+		node( label:'Rate', content: { "$rate.value / $unit.value" } )
+	}
+}
+
+//Settings
+settings( label: "General" ) {
+	property( property: burstSize, label: 'Burst size' ) 
+}
+
+if( running ) schedule()</con:property><con:property propagates="true" key="stateProperty" type="java.lang.Boolean">true</con:property><con:property propagates="true" key="rate" type="java.lang.Long">10</con:property><con:property propagates="true" key="unit" type="java.lang.String">Sec</con:property><con:property propagates="true" key="burstSize" type="java.lang.Long">1</con:property></con:properties><con:attributes><con:property key="com.eviware.loadui.api.model.ComponentItem@type">Fixed Rate</con:property><con:property key="_digest">a6c9a4eb387aa42f9bc7383cd504f110</con:property><con:property key="_id">com.eviware.FixedRate</con:property><con:property key="_classLoader">com.eviware.FixedRate</con:property><con:property key="gui.layoutX">757</con:property><con:property key="gui.layoutY">79</con:property></con:attributes><con:addons/></con:component><con:component type="com.eviware.loadui.groovy.GroovyComponent" label="Fixed Rate 2" id="dbb68325-00ce-4726-a800-cd9ed18c7114" category="generators"><con:properties><con:property propagates="true" key="ModelItem.description" type="java.lang.String"/><con:property propagates="true" key="_script" type="java.lang.String">// 
+// Copyright 2013 SmartBear Software
+// 
+// Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+// versions of the EUPL (the "Licence");
+// You may not use this work except in compliance with the Licence.
+// You may obtain a copy of the Licence at:
+// 
+// http://ec.europa.eu/idabc/eupl
+// 
+// Unless required by applicable law or agreed to in writing, software distributed under the Licence is
+// distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied. See the Licence for the specific language governing permissions and limitations
+// under the Licence.
+// 
+
+/**
+ * Sends an empty message periodically, at a set rate
+ * 
+ * @id com.eviware.FixedRate
+ * @help http://www.loadui.org/Generators/fixed-rate-component.html
+ * @name Fixed Rate
+ * @category generators
+ * @nonBlocking true
+ */
+
+import java.util.concurrent.TimeUnit
+
+//Properties
+createProperty( 'rate', Long, 10 ) { schedule() }
+createProperty( 'unit', String, 'Sec' ) { schedule() }
+
+onReplace( stateProperty ) { value ->
+	if( value ) schedule()
+	else future?.cancel( true )
+}
+
+createProperty( 'burstSize', Long, 1 )
+
+triggerBurst = { 
+	burstSize.value.times {
+		trigger() 
+	} 
+}
+
+future = null
+schedule = {
+	if( stateProperty.value ) {
+		long microsecondsPerUnit = unit.value == 'Sec' ? 1000000 : unit.value == 'Min' ? 60000000 : 3600000000
+		long delay = Math.max( 1, (long)(microsecondsPerUnit / rate.value) )
+		future?.cancel( true )
+		future = scheduleAtFixedRate( triggerBurst, delay, delay, TimeUnit.MICROSECONDS )
+	}
+}
+
+onAction( "START" ) { schedule() }
+onAction( "STOP" ) { future?.cancel( true ) }
+
+//Layout
+layout { 
+	property( property:rate, label:'Rate', min:1 ) 
+	separator( vertical:true )
+	property( property:unit, label:'Unit', options:['Sec','Min','Hour'] )
+	separator( vertical:true )
+	box( widget:'display' ) {
+		node( label:'Rate', content: { "$rate.value / $unit.value" }, constraints:'wmin 75' )
+	}
+}
+
+//Compact Layout
+compactLayout {
+	box( widget:'display' ) {
+		node( label:'Rate', content: { "$rate.value / $unit.value" } )
+	}
+}
+
+//Settings
+settings( label: "General" ) {
+	property( property: burstSize, label: 'Burst size' ) 
+}
+
+if( running ) schedule()</con:property><con:property propagates="true" key="stateProperty" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="rate" type="java.lang.Long">10</con:property><con:property propagates="true" key="unit" type="java.lang.String">Sec</con:property><con:property propagates="true" key="burstSize" type="java.lang.Long">1</con:property></con:properties><con:attributes><con:property key="com.eviware.loadui.api.model.ComponentItem@type">Fixed Rate</con:property><con:property key="_digest">a6c9a4eb387aa42f9bc7383cd504f110</con:property><con:property key="_id">com.eviware.FixedRate</con:property><con:property key="_classLoader">com.eviware.FixedRate</con:property><con:property key="gui.layoutX">1380</con:property><con:property key="gui.layoutY">81</con:property></con:attributes><con:addons/></con:component><con:component type="com.eviware.loadui.components.soapui.SoapUISamplerComponent" label="SoapUI Runner 1" id="0dc9ff8e-bc75-4924-9c26-edd8c521889f"><con:properties><con:property propagates="true" key="ModelItem.description" type="java.lang.String"/><con:property propagates="true" key="concurrentSamples" type="java.lang.Long">100</con:property><con:property propagates="true" key="maxQueueSize" type="java.lang.Long">1000</con:property><con:property propagates="true" key="countDiscarded" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="_projectFileworkingCopy" type="java.io.File">C:\Prosjekter\people-api\soap-ui\people-api-soapui-project.xml</con:property><con:property propagates="false" key="projectRelativePath" type="java.lang.String">people-api-soapui-project.xml</con:property><con:property propagates="true" key="disabledTestSteps" type="java.lang.String"/><con:property propagates="true" key="settingsFile" type="java.io.File">C:\Users\MicJoh\soapui-settings.xml</con:property><con:property propagates="true" key="_projectPassword" xsi:nil="true" type="java.lang.String" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/><con:property propagates="true" key="useProjectRelativePath" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="raiseError" type="java.lang.Boolean">true</con:property><con:property propagates="true" key="outputTestCaseProperties" type="java.lang.Boolean">true</con:property><con:property propagates="true" key="OutputLevel" type="java.lang.String">TestCase only</con:property><con:property propagates="true" key="closeConnectionsAfterRequest" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="disableSoapuiAssertions" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="forceShareDatasources" type="java.lang.Boolean">true</con:property><con:property propagates="false" key="projectFile" type="java.io.File">C:\Prosjekter\people-api\soap-ui\people-api-soapui-project.xml</con:property><con:property propagates="true" key="testSuite" type="java.lang.String">http://nolmicjoh01:8080/api TestSuite</con:property><con:property propagates="true" key="testCase" type="java.lang.String">People TestCase</con:property></con:properties><con:attributes><con:property key="com.eviware.loadui.api.model.ComponentItem@type">SoapUI Runner</con:property><con:property key="gui.layoutX">675</con:property><con:property key="gui.layoutY">288</con:property></con:attributes><con:addons/></con:component><con:component type="com.eviware.loadui.components.soapui.SoapUISamplerComponent" label="SoapUI Runner 2" id="902db65e-4912-493d-899f-5dc9a134da4f"><con:properties><con:property propagates="true" key="ModelItem.description" type="java.lang.String"/><con:property propagates="true" key="concurrentSamples" type="java.lang.Long">100</con:property><con:property propagates="true" key="maxQueueSize" type="java.lang.Long">1000</con:property><con:property propagates="true" key="countDiscarded" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="_projectFileworkingCopy" type="java.io.File">C:\Prosjekter\people-api\soap-ui\people-api-soapui-project.xml</con:property><con:property propagates="false" key="projectRelativePath" type="java.lang.String">people-api-soapui-project.xml</con:property><con:property propagates="true" key="disabledTestSteps" type="java.lang.String"/><con:property propagates="true" key="settingsFile" type="java.io.File">C:\Users\MicJoh\soapui-settings.xml</con:property><con:property propagates="true" key="_projectPassword" xsi:nil="true" type="java.lang.String" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/><con:property propagates="true" key="useProjectRelativePath" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="raiseError" type="java.lang.Boolean">true</con:property><con:property propagates="true" key="outputTestCaseProperties" type="java.lang.Boolean">true</con:property><con:property propagates="true" key="OutputLevel" type="java.lang.String">TestCase only</con:property><con:property propagates="true" key="closeConnectionsAfterRequest" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="disableSoapuiAssertions" type="java.lang.Boolean">false</con:property><con:property propagates="true" key="forceShareDatasources" type="java.lang.Boolean">true</con:property><con:property propagates="false" key="projectFile" type="java.io.File">C:\Prosjekter\people-api\soap-ui\people-api-soapui-project.xml</con:property><con:property propagates="true" key="testSuite" type="java.lang.String">http://nolmicjoh01:8080/api TestSuite</con:property><con:property propagates="true" key="testCase" type="java.lang.String">Create TestCase</con:property></con:properties><con:attributes><con:property key="com.eviware.loadui.api.model.ComponentItem@type">SoapUI Runner</con:property><con:property key="gui.layoutX">1256</con:property><con:property key="gui.layoutY">308</con:property></con:attributes><con:addons/></con:component><con:connection outputTerminalId="3ec8160c-8f35-489e-bcdc-7e408604dfc4/triggerTerminal" inputTerminalId="0dc9ff8e-bc75-4924-9c26-edd8c521889f/triggerTerminal"/><con:connection outputTerminalId="dbb68325-00ce-4726-a800-cd9ed18c7114/triggerTerminal" inputTerminalId="902db65e-4912-493d-899f-5dc9a134da4f/triggerTerminal"/><con:statistics><con:page title="Untitled Page 1"/></con:statistics></con:loadui-project>
