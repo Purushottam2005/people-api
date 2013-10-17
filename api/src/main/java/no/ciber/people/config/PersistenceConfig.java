@@ -4,6 +4,8 @@ import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.dao.support.PersistenceExceptionTranslator;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -23,12 +25,10 @@ import java.sql.SQLException;
  */
 @Configuration
 @EnableJpaRepositories(basePackages = {"no.ciber.people.repository"})
+@PropertySource("classpath:properties/persistence.properties")
 public class PersistenceConfig {
-
-    private String dbUrl = "jdbc:h2:~/test;AUTO_SERVER=TRUE";
-    private String dbUsername = "sa";
-    private String dbPassword = "";
-    private String dbDriverClassName = "org.h2.Driver";
+    @Autowired
+    private Environment env;
 
     @Bean
     @Autowired
@@ -48,10 +48,10 @@ public class PersistenceConfig {
     @Bean
     public DataSource dataSource() throws SQLException {
         DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
-        driverManagerDataSource.setUrl(dbUrl);
-        driverManagerDataSource.setUsername(dbUsername);
-        driverManagerDataSource.setPassword(dbPassword);
-        driverManagerDataSource.setDriverClassName(dbDriverClassName);
+        driverManagerDataSource.setUrl(env.getProperty("db.url"));
+        driverManagerDataSource.setUsername(env.getProperty("db.user"));
+        driverManagerDataSource.setPassword(env.getProperty("db.pass"));
+        driverManagerDataSource.setDriverClassName(env.getProperty("db.driver"));
         return driverManagerDataSource;
     }
 
