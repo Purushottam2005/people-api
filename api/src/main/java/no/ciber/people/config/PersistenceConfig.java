@@ -1,7 +1,9 @@
 package no.ciber.people.config;
 
+import net.sf.ehcache.CacheManager;
 import org.hibernate.cfg.AvailableSettings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -39,6 +41,10 @@ public class PersistenceConfig {
         emfBean.setPackagesToScan("no.ciber.people.model");
         emfBean.getJpaPropertyMap().put(AvailableSettings.HBM2DDL_AUTO, "create");
         emfBean.getJpaPropertyMap().put(AvailableSettings.FORMAT_SQL, true);
+        emfBean.getJpaPropertyMap().put(AvailableSettings.GENERATE_STATISTICS, true);
+        emfBean.getJpaPropertyMap().put(AvailableSettings.USE_SECOND_LEVEL_CACHE, true);
+        emfBean.getJpaPropertyMap().put(AvailableSettings.USE_QUERY_CACHE, true);
+        emfBean.getJpaPropertyMap().put(AvailableSettings.CACHE_REGION_FACTORY, "org.hibernate.cache.ehcache.EhCacheRegionFactory");
         emfBean.setDataSource(dataSource);
         emfBean.afterPropertiesSet();
 

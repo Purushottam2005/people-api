@@ -16,6 +16,6 @@ public class RestExporterWebInitializer extends AbstractAnnotationConfigDispatch
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
-        return new Class<?>[]{RestConfiguration.class};
+        return new Class<?>[]{RestConfiguration.class, MvcConfig.class};
     }
 }

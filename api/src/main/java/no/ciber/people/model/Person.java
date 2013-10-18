@@ -1,5 +1,7 @@
 package no.ciber.people.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.Entity;
@@ -13,6 +15,7 @@ import java.math.BigInteger;
  * Time: 00:29
  */
 @Entity
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public class Person extends AbstractPersistable<BigInteger> {
     private String firstName;
     private String lastName;
