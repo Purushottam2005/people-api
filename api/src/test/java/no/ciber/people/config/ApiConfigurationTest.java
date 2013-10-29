@@ -22,8 +22,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = {RestConfiguration.class})
-public class RestConfigurationTest {
+@ContextConfiguration(classes = {ApiConfiguration.class, PersistenceConfig.class})
+public class ApiConfigurationTest {
 
     @Autowired
     private WebApplicationContext wac;

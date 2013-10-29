@@ -3,6 +3,7 @@ package no.ciber.people.config;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * User: Michael Johansen
@@ -12,6 +13,5 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @Configuration
 @EnableWebMvc
 @ComponentScan("no.ciber.people.controllers")
-public class MvcConfig {
-
+public class MvcConfig extends WebMvcConfigurerAdapter {
 }
