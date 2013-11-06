@@ -1,0 +1,126 @@
+<html>
+<head>
+    <title>Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+    <script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        pre {
+            min-height: 3em;
+            height: auto;
+        }
+
+        .input-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="rest-browser">
+        <div class="row">
+            <div class="col-lg-2">
+                <select class="method form-control">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            <div class="col-lg-10">
+                <input type="url" class="url form-control" value="http://localhost:8080">
+            </div>
+        </div>
+        <ul class="links nav nav-tabs">
+            <li class="active saved"><a href="http://localhost:8080" class="default">Root</a></li>
+        </ul>
+
+        <pre class="input" contenteditable="true" style=""></pre>
+        <div class="input-message"></div>
+        <pre class="request-status"></pre>
+        <pre class="output"></pre>
+    </div>
+</div>
+<script>
+    (function ($) {
+        function navigate(event) {
+            event.preventDefault();
+            fetchData($(this).val(), $(".method").val(), showOutput);
+        }
+
+        function showOutput(data, status, jqXHR) {
+            $(".request-status").text($(".method").val() + " " + self.lastUrl + "\n" + jqXHR.status + " " + jqXHR.statusText);
+            var text = "";
+            if (data) {
+                text += JSON.stringify(data, null, "  ").replace(/(https?:\/\/[^"]+)/gi, '<a href="$1">$1</a>');
+            }
+            $(".output").html(text)
+        }
+
+        function onLinkClicked(event) {
+            event.preventDefault();
+            $(".links").find("li.active").removeClass("active");
+            $(this).closest("li.saved").addClass("active");
+            $("input.url").val(this.href).change();
+        }
+
+        function addLink() {
+            var value = this.href.replace(/https?:\/\/[^:]+(:[^/]+)/gi, "");
+            $(".links").append(createLink(value, this.href).addClass("active").addClass("saved"))
+        }
+
+        function getData() {
+            var text = $(".input").text();
+            return text ? JSON.stringify(JSON.parse(text)) : "";
+        }
+
+        function fetchData(url, method, callback) {
+            self.lastUrl = url;
+            $.ajax({
+                url: url,
+                type: method,
+                data: getData(),
+                contentType: "application/json",
+                dataType: "json",
+                beforeSend: function () {
+                    $(".output").text("Fetching data...")
+                }
+            }).done(callback).fail(function (jqXHR) {
+                        $(".output").html(jqXHR.status + " " + jqXHR.statusText);
+                    });
+        }
+
+        function createLink(text, value) {
+            return $("<li></li>").append($("<a></a>").text(text).attr("href", value));
+        }
+
+        function evalInput() {
+            $(".input-message").empty();
+            try {
+                JSON.parse($(".input").text())
+                return true;
+            }
+            catch (e) {
+                $(".input-message").text(e)
+                return false;
+            }
+        }
+
+        function formatInput(){
+            var text = $(".input").text();
+            $(".input").html(evalInput() ? JSON.stringify(JSON.parse(text), null, "  ") : text);
+        }
+
+        $(".rest-browser").on("click", "a", onLinkClicked).on("click", ".output a", addLink);
+        $("input.url").change(navigate).change();
+        $(".input").on("keyup", evalInput);
+        $(".input").on("paste blur", function () {
+            setTimeout(formatInput, 50);
+        });
+    })(jQuery)
+</script>
+
+</body>
+</html>

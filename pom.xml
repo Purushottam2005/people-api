@@ -11,6 +11,7 @@
         <module>api</module>
         <module>model</module>
         <module>repositories</module>
+        <module>presentation</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -75,6 +76,7 @@
             <url>http://repo.spring.io/snapshot</url>
             <snapshots>
                 <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
             </snapshots>
         </repository>
     </repositories>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>RESTful web-services med Spring</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+        document.write('<link rel="stylesheet" href="css/print/' + ( window.location.search.match(/print-pdf/gi) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">');
+    </script>
+</head>
+
+<body>
+
+<div class="reveal">
+
+<div class="slides">
+<section>
+    <h1>RESTful web-services med Spring</h1>
+
+    <h3>Det er ganske enkelt</h3>
+
+    <p>
+        <small>Laget av Michael Johansen</small>
+    </p>
+</section>
+<section>
+    <h2>Agenda</h2>
+
+    <div>
+        <ul>
+            <li>REST - generelt</li>
+            <li>HATEOAS</li>
+            <li>spring-data</li>
+            <li>spring-data-rest</li>
+            <li>DEMO</li>
+            <li>Oppgave: chat-api</li>
+            <li>CORS</li>
+            <li>ETAGs</li>
+            <li>Testing</li>
+            <li>Caching</li>
+        </ul>
+    </div>
+</section>
+
+<section>
+    <h2>REST</h2>
+    <p class="fragment">Representational State Transfer</p>
+    <aside class="notes">
+        hvem er kjent med det?
+    </aside>
+</section>
+
+<section>
+    <section>
+        <h2>REST er&hellip;</h2>
+
+        <p>&hellip;ressursorientert</p>
+    </section>
+    <section>
+        <h2>Samling av ressurser</h2>
+        <pre><code>GET /person HTTP/1.1 </code></pre>
+        <pre><code class="javascript">
+            [{"firstName":"Michael", "lastName":"Johansen"},
+            {"firstName":"Jørn Anders","lastName":"Svendsen"},
+            {"firstName":"Sven-Jørgen","lastName":"Karlsen"},
+            {"firstName":"Mihaela","lastName":"Motas"},
+            {"firstName":"Kim","lastName":"Skildheim"},
+            {"firstName":"Torstein","lastName":"Jensen"},
+            {"firstName":"Kristin","lastName":"Nygård"},
+            {"firstName":"Håvard","lastName":"Vegge"},
+            {"firstName":"Trond","lastName":"Engell"}]</code></pre>
+    </section>
+    <section>
+        <h2>Enkeltressurser</h2>
+        <pre><code>GET /person/1 HTTP/1.1 </code></pre>
+        <pre><code class="javascript">{"firstName":"Michael", "lastName":"Johansen",
+            "address":{"street":"Trondheimsveien 5D","city":"Oslo"}}</code></pre>
+    </section>
+    <section>
+        <h2>Nøstede ressurser</h2>
+        <pre><code>GET /person/1/address HTTP/1.1 </code></pre>
+        <pre><code class="javascript">{"street":"Trondheimsveien 5D","city":"Oslo"}</code></pre>
+    </section>
+</section>
+<section>
+    <section>
+        <h2>REST er&hellip;</h2>
+
+        <p>&hellip;handlingsorientert</p>
+    </section>
+    <section>
+        <h3>HTTP metoder mapper til operasjoner på ressurser</h3>
+        <ul>
+            <li>GET - Henter en ressurs</li>
+            <li class="fragment">POST - Legg til/opprett ressurs</li>
+            <li class="fragment">PUT - Setter inn/oppdaterer ressurs</li>
+            <li class="fragment">DELETE - Fjerner en ressurs</li>
+        </ul>
+    </section>
+    <section>
+        <h3>HTTP statuskoder</h3>
+        <ul>
+            <li>200 - OK</li>
+            <li class="fragment">201 - Created</li>
+            <li class="fragment">204 - No content</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Henting</h2>
+        <pre><code class="http">GET /person/1 HTTP/1.1</code></pre>
+        <pre><code>200 OK</code></pre>
+        <pre><code class="javascript">{"firstName":"Michael", "lastName":"Johansen"}</code></pre>
+    </section>
+    <section>
+        <h2>Opprettelse</h2>
+        <pre><code class="http">POST /person HTTP/1.1</code></pre>
+        <pre><code class="javascript">{"firstName":"Michael", "lastName":"Johansen"}</code></pre>
+        <pre><code>201 Created</code></pre>
+        <h3 class="fragment">Merk url!</h3>
+    </section>
+    <section>
+        <h2>Oppdater</h2>
+        <pre><code class="http">PUT /person/1 HTTP/1.1</code></pre>
+        <pre><code class="javascript">{"firstName":"Michael", "lastName":"Johansen"}</code></pre>
+        <pre><code>204 No content</code></pre>
+    </section>
+    <section>
+        <h2>Slett</h2>
+        <pre><code class="http">DELETE /person/1 HTTP/1.1</code></pre>
+        <pre><code>204 No content</code></pre>
+    </section>
+</section>
+<section>
+    <section>
+        <h2>HATEOAS</h2>
+
+        <h3 class="fragment">Hypermedia as the Engine of Application State</h3>
+        <aside class="notes">
+            Hvem vet hva det er?
+            Hypermedia er interessant for oss
+        </aside>
+    </section>
+    <section>
+        <h2>Hypermedia</h2>
+        <blockquote cite="http://en.wikipedia.org/wiki/Hypermedia">"Hypermedia is used as a logical extension of the term hypertext in which graphics, audio, video, plain text and hyperlinks intertwine to create a generally non-linear medium of information."</blockquote>
+        <br>
+        <h3 class="fragment">Resurser med lenker</h3>
+    </section>
+    <section>
+        <h2>Hypermedia - i praksis</h2>
+
+        <pre><code class="javascript">{
+            "firstName": "Jenette",
+            "lastName": "Carlson",
+            "links": [{
+            "rel": "self",
+            "href": "http://nolmicjoh01:8080/api/persons/1"
+            }, {
+            "rel": "friends",
+            "href": "http://nolmicjoh01:8080/api/persons/1/friends"
+            }]
+            }</code></pre>
+        <p class="fragment">Dette gir ressurser en entydig måte å representere seg selv (self) og assosiasjoner (f.eks friends)</p>
+    </section>
+
+    <section>
+        <pre><code class="http">GET person/1/friends HTTP/1.1</code></pre>
+        <pre><code class="javascript stretch">{
+        "links": [],
+        "content": [{
+        "firstName": "Karina",
+        "lastName": "Pope",
+        "links": [{
+        "rel": "self",
+        "href": "http://nolmicjoh01:8080/api/person/5"
+        }, {
+        "rel": "friends",
+        "href": "http://nolmicjoh01:8080/api/person/5/friends"
+        }]
+        }, {
+        "firstName": "Cara",
+        "lastName": "Valencia",
+        "links": [{
+        "rel": "self",
+        "href": "http://nolmicjoh01:8080/api/person/50"
+        }, {
+        "rel": "friends",
+        "href": "http://nolmicjoh01:8080/api/person/50/friends"
+        }]
+        }]}</code></pre>
+    </section>
+
+</section>
+<section>
+    <section>
+        <h2>Spring-data</h2>
+
+        <aside class="notes">
+            Hvem har brukt det?
+        </aside>
+    </section>
+    <section>
+        <h2>Gjør datalaget enkelt</h2>
+        <p>det du trenger å vite for dette praksismøtet:</p>
+        <pre><code class="java">@Entity
+public class Person {
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private List&lt;Person&gt; friends;
+    // accessors/mutators truncated for brevity
+}
+public interface PersonRepository extends JpaRepository&lt;Person,Long&gt; {
+    List&lt;Person&gt; findByFirstNameContains(@Param("name") String name);
+    Page&lt;Person&gt; findByIdIn(@Param("ids") List&lt;Long&gt; ids, Pageable page);
+    List&lt;Person&gt; findDistinctByFriendsFriendsId(@Param("id") Long id)
+}</code></pre>
+        <p>Ingen implementasjon er nødvendig, spring-data utleder spørring fra metodenavn</p>
+        <p class="fragment">Dette er JPA, men mange andre spring-data varianter eksisterer. F. eks mongodb, neo4j, redis, hodoop&hellip;</p>
+        <aside class="notes">
+            Meget mulig at de andre variantene er mer egnet til et rest-api, pga av skalerbarhet
+            Spørsmål?
+        </aside>
+    </section>
+    <section>
+        <h2>find Distinct By Friends Friends Id</h2>
+        <pre><code class="sql stretch">
+    select
+        distinct person0_.id as id1_0_,
+        person0_.firstName as firstNam2_0_,
+        person0_.lastName as lastName3_0_
+    from
+        Person person0_
+    left outer join
+        Person_Person friends1_ on person0_.id=friends1_.Person_id
+    left outer join
+        Person person2_ on friends1_.friends_id=person2_.id
+    left outer join
+        Person_Person friends3_ on person2_.id=friends3_.Person_id
+    left outer join
+        Person person4_ on friends3_.friends_id=person4_.id
+    where
+        person4_.id=? limit ?</code></pre>
+        <p>Hvis noe lurte på spørringen :)</p>
+    </section>
+</section>
+<section>
+    <section>
+        <h1>Spring-data-rest</h1>
+    </section>
+    <section>
+        <h3>spring-data-rest er&hellip;</h3>
+        <ul>
+            <li>Eksponerer entiteter og repositorymetoder</li>
+            <li class="fragment">Bleeding edge: Bruker en SNAPSHOT-versjon idag</li>
+            <li class="fragment">Lett oppsett</li>
+        </ul>
+    </section>
+
+     <section>
+         <a href="http://projects.spring.io/spring-data-rest/#toc_0">http://projects.spring.io/spring-data-rest/#toc_0</a>
+         <iframe src="http://projects.spring.io/spring-data-rest/#toc_0"
+                 scrolling="no"
+                 style="width: 850px; height: 490px; overflow-y: hidden"></iframe>
+     </section>
+</section>
+<section>
+    <p>Nå skal vi se på hvordan det henger sammen&hellip;</p>
+    <aside class="notes">
+        1. mulighet til pause
+        2. vis kode
+        3. browse api
+        4. real life api / nvdb
+    </aside>
+</section>
+<section>
+    <section>
+        <h1>Nå er det deres tur!</h1>
+        <ul>
+            <li>svn co https://github.com/michael-johansen/chat-app/trunk chat-app</li>
+            <li>git clone https://github.com/michael-johansen/chat-app chat-app</li>
+            <li>cd chat-app</li>
+            <li>mvn install</li>
+            <li>[OPTIONAL] importer i ditt prefererte IDE</li>
+            <li>mvn jetty:run</li>
+            <li>åpne localhost:8080</li>
+        </ul>
+    </section>
+    <section>
+        <h2>Oppgave</h2>
+        <p>Enkel chate-app hvor funksjonaliteten er mocket opp.</p>
+        <p>All config er gjort på forhånd.</p>
+        <p>Dere må lage model + repository</p>
+    </section>
+
+    <section>
+        <h2>Tanker om spring-data-rest</h2>
+    </section>
+
+</section>
+
+<section>
+    <section>
+        <h2>CORS</h2>
+        <blockquote class="fragment" cite="http://en.wikipedia.org/wiki/Cross-origin_resource_sharing">
+            Cross-origin resource sharing (CORS) is a mechanism that allows JavaScript on a web page to make XMLHttpRequests to another domain, not the domain the JavaScript originated from. Such "cross-domain" requests would otherwise be forbidden by web browsers, per the same origin security policy.
+        </blockquote>
+        <aside class="notes">
+            hvem vet hva det er?
+            gjøre apiet tilgjengelig for alle
+            vis headerne
+        </aside>
+    </section>
+    <section>
+        <h2>CORS i spring-data-rest</h2>
+        <p class="fragment">Ingen eksplisitt støtte</p>
+    </section>
+    <section>
+        <p >Men ganske lett å legge til</p>
+        <pre class="stretch"><code class="java">public class CORSFilter extends OncePerRequestFilter {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        response.addHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.addHeader("Access-Control-Max-Age", "1800");//30 min
+        filterChain.doFilter(request, response);
+    }
+}</code></pre>
+        <aside class="notes">
+            alternativet er å benytte hacks som jsonp
+            eller iframes
+        </aside>
+    </section>
+</section>
+
+
+<section>
+    <section>
+        <h2>ETAGs</h2>
+        <p class="fragment">Klienten kan kommunisere hvilken versjon av ressursen den har, dersom serveren sitter på den samme så er det ikke nødvendig å overføre den på nytt.</p>
+        <aside class="notes">
+            hvem vet hva det er?
+            sparer båndbredde?
+            Demonstrer (http://nolmicjoh01:8080/api/person/1 ctrl f5 )
+        </aside>
+    </section>
+    <section>
+        <h2>Støtte i spring-data-rest</h2>
+        <p>ShallowEtagHeaderFilter</p>
+        <p>Beregner hash på responsen</p>
+    </section>
+</section>
+
+<section><h2>Testing</h2></section>
+<section><h2>Caching</h2></section>
+<section><p>So Long, and Thanks for All the Fish</p></section>
+
+</div>
+
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.min.js"></script>
+
+
+<script>
+
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function () {
+                return !document.body.classList;
+            } },
+            { src: 'plugin/markdown/marked.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/markdown/markdown.js', condition: function () {
+                return !!document.querySelector('[data-markdown]');
+            } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function () {
+                hljs.initHighlightingOnLoad();
+            } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function () {
+                return !!document.body.classList;
+            } }
+        ]
+    });
+
+</script>
+
+<script src="https://code.jquery.com/jquery-2.0.3.min.js"></script>
+<script src="js/presentation.js"></script>
+</body>
+</html>
